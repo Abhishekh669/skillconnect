@@ -1,0 +1,39 @@
+# === GLOBAL ===
+.DS_Store
+*.pem
+*.log
+
+# === FRONTEND (Next.js) ===
+/frontend/node_modules/
+/frontend/.next/
+/frontend/out/
+/frontend/.env*
+/frontend/.DS_Store
+/frontend/coverage/
+/frontend/next-env.d.ts
+/frontend/*.tsbuildinfo
+/frontend/.pnp
+/frontend/.pnp.*
+/frontend/.yarn/*
+!/frontend/.yarn/patches
+!/frontend/.yarn/plugins
+!/frontend/.yarn/releases
+!/frontend/.yarn/versions
+/frontend/.vercel
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/.pnpm-debug.log*
+
+# === BACKEND (Express) ===
+/backend/node_modules/
+/backend/dist/
+/backend/build/
+/backend/.env*
+/backend/.DS_Store
+/backend/*.tsbuildinfo
+/backend/coverage/
+/backend/npm-debug.log*
+/backend/yarn-debug.log*
+/backend/yarn-error.log*
+/backend/.pnpm-debug.log*
