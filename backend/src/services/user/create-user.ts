@@ -12,6 +12,7 @@ export const createuser = async(userData : any) =>{
             name,
             email,
         });
+        
         return user;
 
      } catch (error) {
