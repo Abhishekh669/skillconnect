@@ -2,6 +2,7 @@
 import { OnboardingData } from "@/lib/types/onboarding/types/types";
 import axios from "axios";
 import { auth } from "../../auth/auth";
+import { cookies } from "next/headers";
 
 
 export const createUser = async(values : OnboardingData) =>{
@@ -21,11 +22,25 @@ export const createUser = async(values : OnboardingData) =>{
             userRole : values.userType,
             image : user.user.image,
         }
-        const res = await axios.post(`${process.env.BACKEND_URL}/api/v1/user/create`,newValues);
+        const res = await axios.post(`${process.env.BACKEND_URL}/api/v1/user/create`,newValues,{
+            withCredentials : true
+        });
+        console.log("this is the response of the api call in server action : ",res)
         const data = res.data;
-        if(!data.success){
-            throw new Error();
+         if (!data || !data.token) {
+            throw new Error("Failed to get token from backend");
         }
+        const cookieStore = await cookies();
+        const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        
+        cookieStore.set("user_token", data.token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            expires: sevenDaysFromNow,
+            path: "/",
+        });
+
         return {
             message : "successfully creeated user",
             success : true,

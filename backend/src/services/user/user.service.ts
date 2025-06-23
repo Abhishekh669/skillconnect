@@ -29,12 +29,12 @@ export const createUser = async(userData :CreateUserType) =>{
             isOnboarded : true,
         });
         if(!newUser){
-           return false;
+           return null;
         }
-        return true;
+        return newUser;
     } catch (error) {
         console.error("Error creating user in user service:", error);
-        return false;
+        return null;
         
     }
 }

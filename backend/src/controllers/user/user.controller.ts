@@ -1,8 +1,8 @@
-// src/controllers/user/user.controller.ts
 import { Request, Response } from "express";
 import { createUser, getusers } from "../../services/user/user.service";
 import { EmployeeProfile } from "../../models/employee-profile.model";
 import { User } from "../../models/user.model";
+import jwt  from "jsonwebtoken"
 
 export const createNewUserHandler = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -51,7 +51,16 @@ export const createNewUserHandler = async (req: Request, res: Response): Promise
       }
     }
 
-    res.status(201).json({ message: "User created successfully", success: true });
+
+    const tokenData = {
+       userDataId : newUser._id,
+       userId : newUser.userId,
+       email : newUser.email,
+    };
+
+
+    const token =  jwt.sign(tokenData, process.env.JWT_TOKEN!, {expiresIn : "168h"});
+    res.status(201).json({ message: "User created successfully", success: true, token });
   } catch (error) {
     console.error("Error creating user:", error);
     res.status(500).json({ message: "Failed to create user", success: false });

@@ -8,6 +8,7 @@ import { BasicInfoStep } from "./steps/basic-info-steps"
 import { EmployeeProfileStep } from "./steps/employee-profile"
 
 export default function OnboardingFlow() {
+  const [userData, setUserData] = useState();
   const [currentStep, setCurrentStep] = useState(1)
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     username: "",
