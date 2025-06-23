@@ -22,14 +22,12 @@ export const createUser = async(values : OnboardingData) =>{
             userRole : values.userType,
             image : user.user.image,
         }
-        const res = await axios.post(`${process.env.BACKEND_URL}/api/v1/user/create`,newValues,{
-            withCredentials : true
-        });
-        console.log("this is the response of the api call in server action : ",res)
+        const res = await axios.post(`${process.env.BACKEND_URL}/api/v1/user/create`,newValues);
         const data = res.data;
          if (!data || !data.token) {
             throw new Error("Failed to get token from backend");
         }
+        console.log("this is the data : ",data)
         const cookieStore = await cookies();
         const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         
@@ -44,6 +42,7 @@ export const createUser = async(values : OnboardingData) =>{
         return {
             message : "successfully creeated user",
             success : true,
+            user : data.user,
         }
     } catch (error) {
         console.log("Error creating user in fe:", error);
@@ -53,3 +52,6 @@ export const createUser = async(values : OnboardingData) =>{
         }
     }
 }
+
+
+

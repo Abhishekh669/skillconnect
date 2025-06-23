@@ -18,7 +18,6 @@ function layout({ children }: { children: React.ReactNode }) {
             {children}
           </div>
         </SidebarInset>
-
       </SidebarProvider>
     </CustomerWrapperLayout>
 

@@ -1,14 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { UserTypeStep } from "./steps/user-type-step"
 import { CompletionStep } from "./steps/completion-step"
 import { OnboardingData } from "@/lib/types/onboarding/types/types"
 import { BasicInfoStep } from "./steps/basic-info-steps"
 import { EmployeeProfileStep } from "./steps/employee-profile"
+import { Session } from "next-auth"
+import { useGetUserById } from "@/lib/hooks/tanstack/query-hook/user/get-user-by-id"
+import { redirect } from "next/navigation"
 
-export default function OnboardingFlow() {
-  const [userData, setUserData] = useState();
+export default function OnboardingFlow({user} : {user : Session}) {
+  if(!user || !user.user  || !user.user.id) return redirect("/")
+  const {data : userData , isLoading : userDataLoading}  = useGetUserById(user.user.id);
+console.log(userData)
   const [currentStep, setCurrentStep] = useState(1)
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     username: "",
@@ -20,6 +25,17 @@ export default function OnboardingFlow() {
     userType: "customer",
     employeeProfile: null,
   })
+
+
+  useEffect(()=>{
+    if(userDataLoading)return;
+    if(userData && userData.user){
+      return redirect(`/${userData.user.userRole}/dashboard`);
+
+    }
+  },[userDataLoading, userData])
+
+  
 
   const updateData = (data: Partial<OnboardingData>) => {
     setOnboardingData((prev) => ({ ...prev, ...data }))
@@ -52,6 +68,10 @@ export default function OnboardingFlow() {
       default:
         return null
     }
+  } 
+
+  if(userDataLoading){
+    return <div>...loading</div>
   }
 
   return (

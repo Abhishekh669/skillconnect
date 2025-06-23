@@ -17,9 +17,9 @@ export function CompletionStep({ data, onBack }: CompletionStepProps) {
   const router = useRouter();
   const handleComplete = async() => {
       const response = await createUser(data);
-      if(response.success && response.message){
+      if(response.success && response.message ){
         toast.success(response.message || "User created successfully");
-        router.refresh();
+        router.push(`${response.user.userRole}/dashboard`);
         return;
       }else if(!response.success && response.error){
         toast.error(response.error || "Failed to create user"); 
