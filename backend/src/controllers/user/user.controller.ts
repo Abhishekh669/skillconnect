@@ -6,8 +6,8 @@ import jwt from "jsonwebtoken"
 import { AuthRequest } from "../../lib/types/auth-request";
 
 export const createNewUserHandler = async (req: Request, res: Response): Promise<void> => {
+  const userData = await req.body;
   try {
-    const userData = await req.body;
 
     if (!userData.email || !userData.userId || !userData.username || !userData.userRole) {
       res.status(400).json({ message: "Missing required user fields", success: false });
@@ -40,6 +40,13 @@ export const createNewUserHandler = async (req: Request, res: Response): Promise
         rating: userData.employeeProfile.rating,
         completedJobs: userData.employeeProfile.completedJobs || 0,
         userId: userData.userId,
+        name: userData.username,
+        image: userData.image,
+        location: {
+          coordinates: userData.location.coordinate,
+          address: userData.location.address,
+          type: "Point",
+        },
       };
 
       const employeeProfileData = await EmployeeProfile.create(employeeProfile);
@@ -64,6 +71,7 @@ export const createNewUserHandler = async (req: Request, res: Response): Promise
     res.status(201).json({ message: "User created successfully", success: true, token, user: userData });
   } catch (error) {
     console.error("Error creating user:", error);
+    await User.findOneAndDelete({ userId: userData.userId });
     res.status(500).json({ message: "Failed to create user", success: false });
   }
 };
@@ -126,22 +134,6 @@ export const getCustomerData = async (req: Request, res: Response) => {
 }
 
 
-export const getEmployeeData = async (req: Request, res: Response) => {
-  try {
-    const userId = req.params.userId;
-    if (!userId) throw new Error("userid invalid");
-    const userData = await User.findOne({
-      userId,
-      userRole: "employee"
-    });
-    if (!userData) throw new Error();
-    res.status(200).json({ message: "successfully got user", success: true, user: userData })
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({ message: "failed to get user", success: false })
-
-  }
-}
 
 
 

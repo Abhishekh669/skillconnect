@@ -11,9 +11,8 @@ import { useGetUserById } from "@/lib/hooks/tanstack/query-hook/user/get-user-by
 import { redirect } from "next/navigation"
 
 export default function OnboardingFlow({user} : {user : Session}) {
-  if(!user || !user.user  || !user.user.id) return redirect("/")
+  if(!user?.user?.id) return redirect("/")
   const {data : userData , isLoading : userDataLoading}  = useGetUserById(user.user.id);
-console.log(userData)
   const [currentStep, setCurrentStep] = useState(1)
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     username: "",
@@ -31,7 +30,6 @@ console.log(userData)
     if(userDataLoading)return;
     if(userData && userData.user){
       return redirect(`/${userData.user.userRole}/dashboard`);
-
     }
   },[userDataLoading, userData])
 

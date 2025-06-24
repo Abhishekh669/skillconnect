@@ -3,6 +3,31 @@ import { jobCategories } from "../lib/data";
 
 
 const employeeProfileSchema = new Schema({
+    name: {
+        type: String,
+        required: true,
+
+    },
+    image: {
+        type: String,
+        required: true,
+    },
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            default: 'Point',
+            required: true,
+        },
+        coordinates: {
+            type: [Number],
+        },
+        address: {
+            type: String,
+            required: true,
+        }
+    },
+
     jobCategory: {
         type: String,
         required: true,
@@ -32,12 +57,23 @@ const employeeProfileSchema = new Schema({
         required: true,
         min: 0
     },
-    
-},{
+
+}, {
     timestamps: true,
 })
 
 
-export  const EmployeeProfile = mongoose.models.EmployeeProfile || mongoose.model("EmployeeProfile", employeeProfileSchema);
+
+employeeProfileSchema.index({ location: '2dsphere' });
+employeeProfileSchema.index({
+    jobCategory: 1,
+    skills: 1,
+    hourlyRate: 1
+});
+
+
+
+
+export const EmployeeProfile = mongoose.models.EmployeeProfile || mongoose.model("EmployeeProfile", employeeProfileSchema);
 
 
