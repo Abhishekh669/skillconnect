@@ -8,7 +8,7 @@ export  const fetchUserData = async(id : string) =>{
 
 export const useGetUserById = (id : string) =>{
     return useQuery({
-        queryKey : ["get_user_from_session"],
+        queryKey : ["get_user_from_session", id],
         queryFn : () => fetchUserData(id),
     })
 }
