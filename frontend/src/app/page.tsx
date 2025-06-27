@@ -17,6 +17,7 @@ export default function Home() {
 
   useEffect(()=>{
     setPrice(2000);
+    
   },[])
 
   useEffect(() => {
@@ -38,15 +39,7 @@ export default function Home() {
 
   
   const handleCreateuser = async() =>{
-      const res = await createUser({
-        name: "John Ji",
-        email: "john.doe@example.com" 
-      })
-      if(res.error){
-        console.error("Error creating user:", res.error);
-      } else {
-        console.log("User created successfully:", res.user);
-      }
+      
   }
 
   const handleCreateProduct = async() =>{

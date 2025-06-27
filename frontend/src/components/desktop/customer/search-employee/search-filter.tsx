@@ -10,18 +10,9 @@ import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import type { GetEmployeesOptions } from "@/lib/actions/user/customer/get/user.customer.get"
+import { jobCategories } from "@/lib/data"
 
-// Mock job categories - replace with your actual data
-const jobCategories = [
-  "Software Development",
-  "Design",
-  "Marketing",
-  "Sales",
-  "Customer Service",
-  "Data Analysis",
-  "Project Management",
-  "Content Writing",
-]
+
 
 interface SearchFiltersProps {
   params: GetEmployeesOptions

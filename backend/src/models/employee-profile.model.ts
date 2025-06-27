@@ -65,6 +65,7 @@ const employeeProfileSchema = new Schema({
 
 
 employeeProfileSchema.index({ location: '2dsphere' });
+employeeProfileSchema.index({ userId: 1 });
 employeeProfileSchema.index({
     jobCategory: 1,
     skills: 1,
