@@ -49,7 +49,7 @@ export function CustomerHeader() {
   const { data: customer } = useGetCustomerFromSession()
 
   return (
-    <header className="bg-[#242626] border-b border-emerald-700/30 px-6 py-4">
+    <header className="bg-[#242626] border-b border-emerald-700/30 px-6 py-4 max-h-[90px] h-[90px]">
       <div className="flex items-center justify-between w-full">
         {/* Logo and Brand */}
         <div className="flex items-center gap-3">
@@ -65,14 +65,14 @@ export function CustomerHeader() {
         {/* Navigation Items */}
         <nav className="flex items-center gap-0.5">
           {customerMenuItems.map((item) => {
-            const isActive = pathname === item.url
+            const isActive = pathname.includes(item.url)
             return (
               <Link
                 key={item.title}
                 href={item.url}
                 className={cn(
-                  "flex items-center text-white   gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap  hover:bg-[#4f5050]/70 hover:text-white",
-                  isActive && "  text-[#21c063]",
+                  "flex items-center  text-[#21c063]  gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap  hover:bg-[#4f5050]/70 hover:text-white",
+                  isActive && "text-white  underline",
                 )}
               >
                 <item.icon className="h-4 w-4" />
@@ -86,14 +86,7 @@ export function CustomerHeader() {
             )
           })}
 
-          {/* Quick Action Button */}
-          <Button
-            variant="ghost"
-            className="flex items-center gap-1.5 text-white hover:bg-[#4f5050]/70 hover:text-white ml-1 px-3 py-2 text-xs whitespace-nowrap"
-          >
-            <Wrench className="h-4 w-4 text-[#21c063]" />
-            <span className="text-[#21c063]">Request Service</span>
-          </Button>
+         
         </nav>
 
         {/* User Dropdown */}

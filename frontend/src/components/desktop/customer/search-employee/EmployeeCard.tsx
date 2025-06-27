@@ -6,21 +6,26 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import type { Employee } from "@/lib/actions/user/customer/get/user.customer.get"
+import Image from "next/image"
 
 interface EmployeeCardProps {
-  employee: Employee
+  employee: Employee,
+
 }
 
 export default function EmployeeCard({ employee }: EmployeeCardProps) {
+
   return (
     <Card className="hover:shadow-xl overflow-hidden border border-gray-700 bg-[#242626] backdrop-blur-sm hover:border-[#21c063]/50 group transition-all duration-300 hover:shadow-[#21c063]/10">
       <CardContent className="p-5">
         <div className="flex items-start gap-4">
           <div className="relative">
-            <img
-              src={employee.profileImage || "/placeholder.svg"}
+            <Image
+              src={employee.image || "/placeholder.svg"}
               alt={employee.name}
-              className="w-20 h-20 rounded-full object-cover border-2 border-[#21c063] group-hover:border-[#21c063] transition-colors"
+              width={300}
+              height={300}
+              className="w-16 h-16 rounded-full object-cover border-2 border-[#21c063] group-hover:border-[#21c063] transition-colors"
             />
             <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#21c063] rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -57,12 +62,12 @@ export default function EmployeeCard({ employee }: EmployeeCardProps) {
             <span className="text-xs text-gray-400 uppercase tracking-wide">Hourly Rate</span>
             <div className="font-bold text-xl text-[#21c063]">${employee.hourlyRate}/hr</div>
           </div>
-          <Link href={`/employee/${employee._id}`} passHref>
+          <Link href={`/customer/search-employee/employee/${employee._id}`} passHref>
             <Button
               className="bg-[#21c063] hover:bg-[#21c063]/90 text-white border-none shadow-lg hover:shadow-[#21c063]/25 transition-all duration-200 font-medium"
               size="sm"
             >
-              View Profile
+              View Details
             </Button>
           </Link>
         </div>

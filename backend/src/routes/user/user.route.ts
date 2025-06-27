@@ -2,7 +2,7 @@ import express from "express";
 import { createNewUserHandler, getAllUserHandler, getCustomerData, getUserByIdAfterLogin, getUserByIdHandler } from "../../controllers/user/user.controller";
 import { verifyToken } from "../../middlewares/user-validation";
 import { getEmployeeData } from "../../controllers/user/employee.controller";
-import { getAllEmployeeForCustomerHandler } from "../../controllers/user/customer.controller";
+import { getAllEmployeeForCustomerHandler, getEmployeeAppointmentForCustomer, getEmployeeFromIdHandler,  } from "../../controllers/user/customer.controller";
 
 const router = express.Router();
 
@@ -16,6 +16,8 @@ router.get("/get/:userId/logged", verifyToken, getUserByIdAfterLogin);
 
 
 router.get("/get/customer/getemployees", verifyToken, getAllEmployeeForCustomerHandler);
+router.get("/get/customer/employee/:userId", verifyToken, getEmployeeFromIdHandler)
+router.get("/get/customer/employee/:profileId/appointments", verifyToken, getEmployeeAppointmentForCustomer)
 
 
 

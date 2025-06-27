@@ -14,7 +14,6 @@ export const createNewUserHandler = async (req: Request, res: Response): Promise
       return;
     }
 
-
     const basicUserData = {
       userId: userData.userId,
       username: userData.username,
@@ -59,13 +58,11 @@ export const createNewUserHandler = async (req: Request, res: Response): Promise
       }
     }
 
-
     const tokenData = {
       userDataId: newUser._id,
       userId: newUser.userId,
       email: newUser.email,
     };
-
 
     const token = jwt.sign(tokenData, process.env.JWT_TOKEN!, { expiresIn: "168h" });
     res.status(201).json({ message: "User created successfully", success: true, token, user: userData });
@@ -94,9 +91,7 @@ export const getUserByIdHandler = async (req: Request, res: Response): Promise<v
       email: user.email,
     };
 
-
     const token = jwt.sign(tokenData, process.env.JWT_TOKEN!, { expiresIn: "168h" });
-
 
     res.status(200).json({ user, token, success: true });
   } catch (error) {
@@ -115,7 +110,6 @@ export const getAllUserHandler = async (req: Request, res: Response): Promise<vo
   }
 };
 
-
 export const getCustomerData = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
@@ -129,24 +123,19 @@ export const getCustomerData = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error)
     res.status(500).json({ message: "failed to get user", success: false })
-
   }
-}
-
-
-
-
+};
 
 export const getUserByIdAfterLogin = async (req: AuthRequest, res: Response) => {
   try {
     const userIdFromClient = req.params.userId;
     const { userDataId, userId } = req
     if (!userDataId || !userId) {
-      res.status(402).json({ message: "failed to get user daata", success: false })
+      res.status(401).json({ message: "failed to get user daata", success: false })
       return;
     }
     if (userId !== userIdFromClient) {
-      res.status(402).json({ message: "failed to get user ", success: false })
+      res.status(403).json({ message: "failed to get user ", success: false })
       return;
     }
     const userData = await User.findOne({
@@ -157,7 +146,5 @@ export const getUserByIdAfterLogin = async (req: AuthRequest, res: Response) => 
     res.status(200).json({ message: "successfully got user", success: true, user: userData })
   } catch (error) {
     res.status(500).json({ message: "failed to get user", success: false })
-
   }
-
-}
+};

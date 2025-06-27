@@ -51,16 +51,16 @@ connectDB()
   .catch(console.error);
 
 // Middleware
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "https://api.baburam-sarki.com.np", 
-      "https://baburam-sarki.com.np"
-    ],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: [
+//       "http://localhost:3000",
+//       "https://api.baburam-sarki.com.np", 
+//       "https://baburam-sarki.com.np"
+//     ],
+//     credentials: true,
+//   })
+// );
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.json());
@@ -69,7 +69,7 @@ app.use(rateLimiter);
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Hello World");
+  return  res.json({message : "i am from node js in contianer"});
 });
 
 app.use("/api/v1/user", userRouter);
