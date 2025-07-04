@@ -1,26 +1,23 @@
 "use client"
 import { useGetEmployeeFromSession } from '@/lib/hooks/tanstack/query-hook/employee/useGetEmployeeFromSession'
-import { useRouter } from 'next/navigation';
+import { useEmployeeStore } from '@/lib/store/employee/use-employee-store';
+import { redirect, useRouter } from 'next/navigation';
 import React, { useEffect } from 'react'
 
 function EmployeeWrapperLayout({children} : {children : React.ReactNode}) {
   const {data : employee, isLoading : employeeLoading} = useGetEmployeeFromSession();
-  const router = useRouter();
-  
-  
+  const {user, setUser} = useEmployeeStore();
+console.log("this is the employee data : ",employee)
+
   useEffect(()=>{
-    if(!employeeLoading){
-      if(!employee) {
-        router.push("/login");
-        return;
-      }
-      if(employee && employee.userRole !== "employee"){
-        const path = employee.userRole ?  `${employee.userRole}/dashboard` : "/"
-        router.push(path);
-        return;
-      }
-    } 
-  }, [employee, employeeLoading, router]) 
+    if(employeeLoading) return;
+    if(employee){
+      if(employee.userRole != "employee")return redirect("/")
+      setUser(employee)
+    }
+  },[employeeLoading, employee, user, setUser])
+  
+
   
   if (employeeLoading) {
     return (
@@ -30,9 +27,8 @@ function EmployeeWrapperLayout({children} : {children : React.ReactNode}) {
     );
   }
   
-  if (!employee || employee.userRole !== "employee") {
-    return null;
-  }
+  if(!employee)return null;
+ 
   
   return (
     <div>

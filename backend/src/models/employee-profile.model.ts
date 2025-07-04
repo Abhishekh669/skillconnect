@@ -3,6 +3,7 @@ import { jobCategories } from "../lib/data";
 
 
 const employeeProfileSchema = new Schema({
+     workerStatus : {type : Boolean, required : true, default : true},
     name: {
         type: String,
         required: true,

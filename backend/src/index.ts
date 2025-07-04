@@ -6,6 +6,8 @@ import cookieParser from "cookie-parser";
 import { connectDB } from "./lib/connectdb";
 import userRouter from "./routes/user/user.route";
 import productRouter from "./routes/product/product-route";
+import appointmentRouter from "./routes/appointment/appointment.route";
+import paymentRouter from "./routes/payment/payment.route";
 import { createServer } from "http";
 import { WebSocketServer } from "ws";
 import { createRateLimiter } from "./middlewares/rate-limiter";
@@ -51,16 +53,16 @@ connectDB()
   .catch(console.error);
 
 // Middleware
-// app.use(
-//   cors({
-//     origin: [
-//       "http://localhost:3000",
-//       "https://api.baburam-sarki.com.np", 
-//       "https://baburam-sarki.com.np"
-//     ],
-//     credentials: true,
-//   })
-// );
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://api.baburam-sarki.com.np", 
+      "https://baburam-sarki.com.np"
+    ],
+    credentials: true,
+  })
+);
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.json());
@@ -74,3 +76,5 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/product", productRouter);
+app.use("/api/v1/appointment", appointmentRouter);
+app.use("/api/v1/payment",paymentRouter);

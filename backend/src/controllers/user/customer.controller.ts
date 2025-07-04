@@ -19,7 +19,6 @@ export const getAllEmployeeForCustomerHandler = async (req: Request, res: Respon
       jobCategory: req.query.jobCategory as string || ""
     };
 
-    console.log("data to be queried : ", queryData)
 
     const employeeData = await getAllEmployeeForCustomer(queryData);
     console.log("this is data : ", employeeData)

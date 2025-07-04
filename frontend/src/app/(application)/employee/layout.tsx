@@ -1,24 +1,17 @@
-import EmployeeWrapperLayout from '@/components/common/employee-wraper-layout copy'
-import { EnhancedSidebarTrigger } from '@/components/common/sidebar/sidebar-trigger-enhanced'
-import { EmployeeSidebar } from '@/components/desktop/employee/sidebar/employee-sidebar'
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import EmployeeWrapperLayout from '@/components/common/employee-wraper-layout'
+import { EmployeeHeader } from '@/components/desktop/employee/header/employee-header'
 
 import React from 'react'
 
-function layout({children} : {children : React.ReactNode}) {
+function layout({ children }: { children: React.ReactNode }) {
   return (
     <EmployeeWrapperLayout>
-       <SidebarProvider>
-      <EmployeeSidebar />
-      <SidebarInset>
-        <header className='bg-[#161717] '>
-          <EnhancedSidebarTrigger />
+      <div className="h-screen flex flex-col bg-[#161717]">
+        <header>
+          <EmployeeHeader />
         </header>
-        <div className='w-full h-full bg-[#161717] '>
-        {children}
-        </div>
-        </SidebarInset>
-    </SidebarProvider>
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
     </EmployeeWrapperLayout>
   )
 }

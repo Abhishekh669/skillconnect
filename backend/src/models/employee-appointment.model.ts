@@ -1,9 +1,9 @@
-import { Schema, model, Types } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const appointmentSchema = new Schema({
+ 
   customerId: {
-    type: Types.ObjectId,
-    ref: "User", // Change if your customer model has a different name
+    type: String,
     required: true,
     index: true, // For faster lookups by customer
   },
@@ -12,8 +12,7 @@ const appointmentSchema = new Schema({
     required : true,
   },
   employeeId: {
-    type: Types.ObjectId,
-    ref: "Employee",
+    type : String,
     required: true,
     index: true, // For employee-specific appointment queries
   },
@@ -32,6 +31,7 @@ const appointmentSchema = new Schema({
    commissionStatus: {
     type: Boolean, 
     required: true,
+    default : false,
     index: true,
   }
   ,
@@ -84,5 +84,6 @@ const appointmentSchema = new Schema({
 appointmentSchema.index({ employeeId: 1, status: 1 });
 appointmentSchema.index({ status: 1, deadline: 1 });
 appointmentSchema.index({ offeredPrice : 1 , employeeProfileId : 1});
+appointmentSchema.index({_id : 1, employeeId : 1})
 
 export const Appointment = model("Appointment", appointmentSchema);

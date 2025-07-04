@@ -1,19 +1,32 @@
 'use server'
 
 import { auth } from "@/lib/actions/auth/auth";
+import { getErrorMessage } from "@/lib/utils/get-error";
 import { get_cookies } from "@/lib/utils/get-token";
 import axios from "axios";
 
 export const getCustomerFromSesison = async () => {
+    const user_token = await get_cookies('user_token')
+    if(!user_token) return null;
     try {
         const session = await auth();
         if (!session || !session?.user || !session?.user?.id) throw new Error();
-        const profileId = session.user.id;
-        const res = await axios.get(`${process.env.BACKEND_URL}/api/v1/user/get/${profileId}/customer`);
+        const userId = session.user.id;
+        console.log("this is the backend url : ",process.env.BACKEND_URL)
+        const res = await axios.get(`${process.env.BACKEND_URL}/api/v1/user/get/${userId}/customer`,
+                        {
+                withCredentials: true,
+                headers: {
+                    Cookie: `user_token=${user_token};`
+                }
+            }
+        );
         const { user } = res.data;
+        console.log('this is user data iin app of customer: ',user)
         return user || null;
     } catch (error) {
-        console.log(error);
+        error = getErrorMessage(error)
+        console.log("this isht e actual error : ",error);
         return null;
 
     }

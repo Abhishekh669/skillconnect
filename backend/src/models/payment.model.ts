@@ -1,30 +1,35 @@
 import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+    employeeId: {
+       type : String, 
+       required : true,
     },
-    order: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Order",
-        required: true,
+    appointmentId : {
+        type : String,
+        required : true,
     },
     amount: {
         type: Number,
         required: true,
     },
-    payment_method: {
+    transactionCode : {
+        type : String
+    },
+    paymentMethod : {
         type: String,
         required: true,
-        default: "esewa",
+        enum: ["khalti", "esewa"]
     },
-    transaction_id: {
-        type: String,
-        required: true,
-        unique: true,
+    status: {
+      type: String,
+      enum: ["PENDING", "COMPLETED", "FAILED", "REFUNDED"],
+      default: "PENDING",
     },
+    paymentDate : {
+        type : Date,
+        default : Date.now,
+    }
 }, {
     timestamps: true,
 });

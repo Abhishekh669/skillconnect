@@ -21,7 +21,7 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
       return;
     }
     
-    // Verify token
+    // Verify tokendfsd
     const user_data = jwt.verify(
       user_token,
       process.env.JWT_TOKEN!,
@@ -40,7 +40,9 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
       email: user_data.email,
     });
 
-
+    
+    console.log("user in verificaiotn : ", findUser)
+    
     // Authenticated, but no such user in DB
     if (!findUser) {
       res.status(403).json({
@@ -52,6 +54,7 @@ export const verifyToken = async (req: AuthRequest, res: Response, next: NextFun
     // Attach user info to request and proceed
     req.userDataId = user_data.userDataId;
     req.userId = user_data.userId;
+    console.log("user after verifcaito n: ", req.userDataId, req.userId)
     next();
   } catch (error) {
     // Likely a malformed token or verification error

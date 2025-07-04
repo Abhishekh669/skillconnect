@@ -110,11 +110,17 @@ export const getAllUserHandler = async (req: Request, res: Response): Promise<vo
   }
 };
 
-export const getCustomerData = async (req: Request, res: Response) => {
+
+
+
+export const getCustomerDataHandler = async (req: AuthRequest, res: Response) => {
   try {
+    console.log("this ishte user id  : ",req.params.userId)
     const userId = req.params.userId;
     if (!userId) throw new Error("userid invalid");
+    if(userId != req.userId)throw new Error("user not authenticated");
     const userData = await User.findOne({
+
       userId,
       userRole: "customer"
     });
