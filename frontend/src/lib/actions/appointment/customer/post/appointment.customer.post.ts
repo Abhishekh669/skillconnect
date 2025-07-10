@@ -27,6 +27,10 @@ export const createCustomerAppointment = async (values: CreateAppointmentType) =
         })
         const data = res.data;
 
+        if(!data.success){
+            throw new Error(data.error)
+        }
+
         return {
             success: true,
             message: data.message
@@ -34,6 +38,7 @@ export const createCustomerAppointment = async (values: CreateAppointmentType) =
 
 
     } catch (error) {
+        console.log("this is hte rror : ",error)
         return {
             success: false,
             error : getErrorMessage(error)

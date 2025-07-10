@@ -10,23 +10,20 @@ import { scheduleAppointments } from "@/lib/utils/job-sequencing"
 import { AppointmentSchema } from "@/lib/types/appointment/appointment.types"
 import { useEmployeePaymentStore } from "@/lib/store/employee/payment/use-payment-store"
 import { useRouter } from "next/navigation"
-
+import toast from "react-hot-toast"
+import { useRejectAppointmentRequestStatus } from "@/lib/hooks/tanstack/mutate-hook/appointment/employee/use-reject-emplolyee-request-status"
+import { useGetRejectedAppointments } from "@/lib/hooks/tanstack/query-hook/employee/useGetRejectedAppointments"
 
 const getStatusText = (status: "accepted" | "rejected" | "not-responded") => {
   switch (status) {
     case "accepted":
       return "On Progress";
-      break;
     case "rejected":
       return "Request Rejected";
-      break;
     case "not-responded":
-      return "Respont to Request";
-      break;
+      return "Respond to Request";
     default:
       return "Something went wrong";
-      break;
-
   }
 }
 
@@ -34,51 +31,41 @@ type FilterType = "all" | "date" | "maxProfit" | "giveMaxProfit"
 
 function EmployeeAppointments() {
   const { data: appointmentData, isLoading: appointmentDataLoading } = useGetAppointmentOfEmployee()
-  const [filteredAppointmentData, setFilteredAppointmentData] = useState<AppointmentSchema[]>([])
-  const {setAppointmentId, setAmountData} = useEmployeePaymentStore()
-  const [originalData, setOriginalData] = useState<AppointmentSchema[]>([])
+  const { mutate: rejectRequest, isPending } = useRejectAppointmentRequestStatus();
+  const {data  : rejectedData, isLoading : rejectedDataLoading} = useGetRejectedAppointments()
+  const [accepting, setIsAccepting] = useState(false)
+  // Track which appointment is being rejected
+  const [rejectingAppointmentId, setRejectingAppointmentId] = useState<string | null>(null)
+  const { setAppointmentId, setAmountData } = useEmployeePaymentStore()
   const [activeFilter, setActiveFilter] = useState<FilterType>("all")
-  const [totalProfit, setTotalProfit] = useState(0)
-  const rotuer = useRouter()
-
-  useEffect(() => {
-    if (appointmentDataLoading) return
-    if (appointmentData && appointmentData?.appointments.length > 0) {
-      setOriginalData(appointmentData?.appointments)
-      setFilteredAppointmentData(appointmentData?.appointments)
-      calculateTotalProfit(appointmentData?.appointments)
-    }
-  }, [appointmentDataLoading, appointmentData])
-
+  const router = useRouter()
+  
+  
   const calculateTotalProfit = (appointments: AppointmentSchema[]) => {
-    const total = appointments.reduce((sum, appointment) => sum + appointment.offeredPrice, 0)
-    setTotalProfit(total)
+    return appointments.reduce((sum, appointment) => sum + appointment.offeredPrice, 0)
   }
-
-  const applyFilter = (filterType: FilterType) => {
-    setActiveFilter(filterType)
-    let filtered = [...originalData] // Fix: use originalData
-
+  
+  console.log("this is hte rejected appointmetn : ",rejectedData)
+  const applyFilter = (data: AppointmentSchema[], filterType: FilterType) => {
+    let filtered = [...data]
     switch (filterType) {
-      case "all":
-        filtered = originalData // Fix: use originalData
-        break
       case "date":
-        filtered = originalData.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-        break
+        return filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
       case "maxProfit":
-        filtered = originalData.sort((a, b) => b.offeredPrice - a.offeredPrice)
-        break
+        return filtered.sort((a, b) => b.offeredPrice - a.offeredPrice)
       case "giveMaxProfit":
-        const scheduledData = scheduleAppointments(originalData) // Fix: use originalData
-        filtered = scheduledData.scheduled
-        console.log("Optimized schedule:", scheduledData)
-        break
+        return scheduleAppointments(filtered).scheduled
+      default:
+        return filtered
     }
-
-    setFilteredAppointmentData(filtered)
-    calculateTotalProfit(filtered)
   }
+
+  // Derived state from query data
+  const appointments = appointmentData?.appointments || []
+  const filteredAppointments = applyFilter(appointments, activeFilter)
+  const totalProfit = calculateTotalProfit(filteredAppointments)
+
+ 
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -120,15 +107,39 @@ function EmployeeAppointments() {
     })
   }
 
-  const handleAcceptRequest = async(id : string, offeredAmount : number, commissionAmount : number) =>{
-      if(!id)return;
+  const handleAcceptRequest = async (id: string, offeredAmount: number, commissionAmount: number) => {
+    if (!id) return;
+    setIsAccepting(true)
+    try {
       setAppointmentId(id);
       setAmountData({
-        offeredAmount : offeredAmount,
+        offeredAmount: offeredAmount,
         commissionAmount
       })
-      rotuer.push("/employee/payment");
+      router.push("/employee/payment");
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsAccepting(false)
+    }
+  }
 
+  const handleRejectRequest = (id: string) => {
+    if (!id) return;
+    setRejectingAppointmentId(id); // Set the specific appointment being rejected
+    
+    rejectRequest(id, {
+      onSuccess: (res) => {
+        if (res.success && res.message) {
+          toast.success(res.message || "Successfully rejected")
+        } 
+        setRejectingAppointmentId(null); // Clear the rejecting state
+      },
+      onError: () => {
+        toast.error("Something went wrong")
+        setRejectingAppointmentId(null); // Clear the rejecting state
+      }
+    })
   }
 
   if (appointmentDataLoading) {
@@ -142,8 +153,6 @@ function EmployeeAppointments() {
   return (
     <div className="min-h-screen bg-[#161717] text-white">
       <div className="max-w-7xl mx-auto p-6 space-y-8">
-
-
         <Card className="bg-[#262727] border-gray-600 shadow-2xl">
           <CardHeader className="text-white text-lg font-bold">
             Employee Appointments
@@ -151,7 +160,7 @@ function EmployeeAppointments() {
           <CardContent className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center p-6 bg-[#161717] rounded-xl border border-gray-600">
-                <div className="text-3xl font-bold text-green-400 mb-2">{filteredAppointmentData.length}</div>
+                <div className="text-3xl font-bold text-green-400 mb-2">{filteredAppointments.length}</div>
                 <div className="text-sm text-gray-300 font-medium">Total Appointments</div>
               </div>
               <div className="text-center p-6 bg-[#161717] rounded-xl border border-gray-600">
@@ -160,7 +169,7 @@ function EmployeeAppointments() {
               </div>
               <div className="text-center p-6 bg-[#161717] rounded-xl border border-gray-600">
                 <div className="text-3xl font-bold text-green-400 mb-2">
-                  {filteredAppointmentData.filter((apt) => !isDeadlinePassed(apt.deadline)).length}
+                  {filteredAppointments.filter((apt) => !isDeadlinePassed(apt.deadline)).length}
                 </div>
                 <div className="text-sm text-gray-300 font-medium">Active Appointments</div>
               </div>
@@ -172,10 +181,10 @@ function EmployeeAppointments() {
         <div className="flex flex-wrap gap-4 justify-center">
           <Button
             variant={activeFilter === "all" ? "default" : "outline"}
-            onClick={() => applyFilter("all")}
+            onClick={() => setActiveFilter("all")}
             className={`flex items-center gap-2 px-6 py-3 transition-all duration-300 font-medium ${activeFilter === "all"
-                ? "bg-green-400 hover:bg-green-200 text-black shadow-lg shadow-green-400/20"
-                : "bg-[#262727] hover:bg-[#363737] text-white border-gray-600 hover:border-green-400"
+              ? "bg-green-400 hover:bg-green-200 text-black shadow-lg shadow-green-400/20"
+              : "bg-[#262727] hover:bg-[#363737] text-white border-gray-600 hover:border-green-400"
               }`}
           >
             <CheckCircle className="h-4 w-4" />
@@ -183,10 +192,10 @@ function EmployeeAppointments() {
           </Button>
           <Button
             variant={activeFilter === "date" ? "default" : "outline"}
-            onClick={() => applyFilter("date")}
+            onClick={() => setActiveFilter("date")}
             className={`flex items-center gap-2 px-6 py-3 transition-all duration-300 font-medium ${activeFilter === "date"
-                ? "bg-green-400 hover:bg-green-200 text-black shadow-lg shadow-green-400/20"
-                : "bg-[#262727] hover:bg-[#363737] text-white border-gray-600 hover:border-green-400"
+              ? "bg-green-400 hover:bg-green-200 text-black shadow-lg shadow-green-400/20"
+              : "bg-[#262727] hover:bg-[#363737] text-white border-gray-600 hover:border-green-400"
               }`}
           >
             <Calendar className="h-4 w-4" />
@@ -194,10 +203,10 @@ function EmployeeAppointments() {
           </Button>
           <Button
             variant={activeFilter === "maxProfit" ? "default" : "outline"}
-            onClick={() => applyFilter("maxProfit")}
+            onClick={() => setActiveFilter("maxProfit")}
             className={`flex items-center gap-2 px-6 py-3 transition-all duration-300 font-medium ${activeFilter === "maxProfit"
-                ? "bg-green-400 hover:bg-green-200 text-black shadow-lg shadow-green-400/20"
-                : "bg-[#262727] hover:bg-[#363737] text-white border-gray-600 hover:border-green-400"
+              ? "bg-green-400 hover:bg-green-200 text-black shadow-lg shadow-green-400/20"
+              : "bg-[#262727] hover:bg-[#363737] text-white border-gray-600 hover:border-green-400"
               }`}
           >
             <DollarSign className="h-4 w-4" />
@@ -205,10 +214,10 @@ function EmployeeAppointments() {
           </Button>
           <Button
             variant={activeFilter === "giveMaxProfit" ? "default" : "outline"}
-            onClick={() => applyFilter("giveMaxProfit")}
+            onClick={() => setActiveFilter("giveMaxProfit")}
             className={`flex items-center gap-2 px-6 py-3 transition-all duration-300 font-medium ${activeFilter === "giveMaxProfit"
-                ? "bg-green-400 hover:bg-green-200 text-black shadow-lg shadow-green-400/20"
-                : "bg-[#262727] hover:bg-[#363737] text-white border-gray-600 hover:border-green-400"
+              ? "bg-green-400 hover:bg-green-200 text-black shadow-lg shadow-green-400/20"
+              : "bg-[#262727] hover:bg-[#363737] text-white border-gray-600 hover:border-green-400"
               }`}
           >
             <DollarSign className="h-4 w-4" />
@@ -216,15 +225,14 @@ function EmployeeAppointments() {
           </Button>
         </div>
 
-        {/* Appointments Grid */}
-        {filteredAppointmentData.length > 0 ? (
+        {filteredAppointments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAppointmentData.map((appointment, index) => (
+            {filteredAppointments.map((appointment, index) => (
               <Card
                 key={appointment._id}
                 className={`hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] ${isDeadlinePassed(appointment.deadline)
-                    ? "bg-red-900/20 border-red-500/50 shadow-red-500/20"
-                    : "bg-[#262727] border-gray-600 hover:border-green-400/50 shadow-xl"
+                  ? "bg-red-900/20 border-red-500/50 shadow-red-500/20"
+                  : "bg-[#262727] border-gray-600 hover:border-green-400/50 shadow-xl"
                   }`}
               >
                 <CardHeader className="pb-3">
@@ -285,19 +293,19 @@ function EmployeeAppointments() {
                   {/* Action Button */}
                   <div className="flex justify-between">
                     <Button
-                    className={` mt-4 transition-all duration-300 font-medium bg-red-400 hover:bg-red-200 text-black shadow-lg shadow-green-400/20"
-                      }`}
-                    disabled={isDeadlinePassed(appointment.deadline)}
-                  >
-                   Reject the request
-                  </Button>
-                  <Button
-                    className={`mt-4 transition-all duration-300 font-medium bg-green-400 hover:bg-green-200 text-black shadow-lg shadow-green-400/20"}`}
-                    // disabled={isDeadlinePassed(appointment.deadline)}
-                    onClick={()=> handleAcceptRequest(appointment._id, appointment.offeredPrice, appointment.companyCommissionPrice)}
-                  >
-                   Respond to request
-                  </Button>
+                      className="mt-4 transition-all duration-300 font-medium bg-red-400 hover:bg-red-200 text-black shadow-lg shadow-red-400/20"
+                      disabled={isDeadlinePassed(appointment.deadline) || rejectingAppointmentId === appointment._id || accepting}
+                      onClick={() => handleRejectRequest(appointment._id)}
+                    >
+                      {rejectingAppointmentId === appointment._id ? "Deleting..." : "Reject the request"}
+                    </Button>
+                    <Button
+                      className="mt-4 transition-all duration-300 font-medium bg-green-400 hover:bg-green-200 text-black shadow-lg shadow-green-400/20"
+                      disabled={isDeadlinePassed(appointment.deadline) || rejectingAppointmentId === appointment._id || accepting}
+                      onClick={() => handleAcceptRequest(appointment._id, appointment.offeredPrice, appointment.companyCommissionPrice)}
+                    >
+                      {accepting ? "Accepting..." : "Respond to request"}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

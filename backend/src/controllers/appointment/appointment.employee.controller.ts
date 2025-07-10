@@ -5,6 +5,7 @@ import { Auth } from "mongodb";
 import { RejectedAppointments } from "../../models/rejected-appointment.model";
 import mongoose from "mongoose";
 import { User } from "../../models/user.model";
+import { resolveSoa } from "dns";
 
 
 
@@ -87,7 +88,8 @@ export const appointmentRecordsForEmployee = async (req: AuthRequest, res: Respo
             return;
         }
         const appointments = await Appointment.find({
-            employeeId
+            employeeId,
+            commissionStatus : true,
         })
 
         res.status(200).json({
@@ -116,6 +118,7 @@ export const rejectAppointment = async (req: AuthRequest, res: Response) => {
             })
             return;
         }
+        console.log("i am for deleting the  apopintment id : ",appointmentId)
 
         const appointmentData = await Appointment.findById(appointmentId);
         if (!appointmentData) {
@@ -140,7 +143,7 @@ export const rejectAppointment = async (req: AuthRequest, res: Response) => {
 
             await session.commitTransaction();
 
-            return res.status(200).json({
+             res.status(200).json({
                 message: "Successfully rejected appointment",
                 success: true,
             });
@@ -151,6 +154,7 @@ export const rejectAppointment = async (req: AuthRequest, res: Response) => {
             session.endSession();
         }
     } catch (error) {
+        console.log("this is error :",error)
         res.status(400).json({
             message: "failed to reject appointment",
             status: false,
@@ -233,6 +237,38 @@ export const getEmployeeAppointmentRecordById  = async(req : AuthRequest, res : 
     } catch (error) {
         res.status(400).json({
             message  : "failed to get appointment ",
+            success : false,
+        })
+        
+    }
+}
+
+
+export const getRejectedData = async (req: AuthRequest, res: Response) =>{
+    try {
+        const employeeId = req.userId;
+        console.log("this is hemplyee id : ",employeeId)
+        if(!employeeId){
+            res.status(400).json({
+                error : "invalid data",
+                success : false,
+            })
+            return;
+        }        
+        const rejectedAppointments = await RejectedAppointments.find({
+            employeeId,
+        })
+
+        console.log("this is rejected data ",rejectedAppointments)
+
+        res.status(200).json({
+            message  :"successfully got data",
+            success : true,
+            rejectedAppointments
+        })
+    } catch (error) {
+        res.status(400).json({
+            error   : "failed to get data",
             success : false,
         })
         

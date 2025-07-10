@@ -3,6 +3,8 @@ import { CreateAppointmentType } from "../../lib/types/appointment";
 import { createAppointmentForCustomer } from "../../services/appointment/appoint.customer.service";
 import { Appointment } from "../../models/employee-appointment.model";
 import { EmployeeProfile } from "../../models/employee-profile.model";
+import { AuthRequest } from "../../lib/types/auth-request";
+import { RejectedAppointments } from "../../models/rejected-appointment.model";
 
 
 
@@ -110,5 +112,37 @@ export const createAppointmentForCustomerHandler = async (req: Request, res: Res
         console.log("this is the error  in appointmnet : ",error)
         res.status(500).json({ error: "failed to create it ", success: false })
 
+    }
+}
+
+
+export const  customerRecordData = async(req : AuthRequest, res : Response) =>{
+    try {
+        const customerId = req.userId;
+        if(!customerId){
+            res.status(401).json({
+                error : "invalid id",
+                success : false,
+            })
+            return;
+        }
+
+        const [appointmentsData, rejectedAppointments] = await Promise.all([
+            Appointment.find({
+                customerId
+            }),
+            RejectedAppointments.find({
+                customerId
+            })
+        ]);
+        res.status(200).json({
+            appointmentsData,
+            rejectedAppointments,
+            success : true,
+            message :  "fetched data successuflly"
+        })
+    } catch (error) {
+        res.status(400).json({error : "failed to get data",success : false})
+        
     }
 }

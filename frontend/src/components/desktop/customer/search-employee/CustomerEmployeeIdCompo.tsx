@@ -143,12 +143,12 @@ function CustomerEmployeeIdCompo() {
       create_appointment(data, {
         onSuccess: (res) => {
           if (res.success && res.message) {
-            toast.success(res.message || "Successfully created")
+            toast.success(res.message as string || "Successfully created")
             setShowDisclaimer(false)
             setDialogOpen(false)
             form.reset()
           } else if (!res.success && res.error) {
-            toast.error(res.error);
+            toast.error(res.error as string);
           }
         },
         onError: () => { 

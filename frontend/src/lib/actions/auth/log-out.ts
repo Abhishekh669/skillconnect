@@ -14,11 +14,11 @@ export const handleLogOut = async () => {
         expires: new Date(0),   // Set expiry in the past to delete
         path: "/",
     });
-    
+
     await signOut({
         redirectTo: "/"
     })
 
-    
+
 
 }
