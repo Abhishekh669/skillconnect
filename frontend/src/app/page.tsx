@@ -7,7 +7,7 @@ import { createUser } from "@/lib/actions/user/post/user.post";
 import { createProduct } from "@/lib/actions/product/post/product";
 import { Input } from "@/components/ui/input";
 
-import {toast} from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
 
 
 
@@ -15,15 +15,15 @@ export default function Home() {
   const [price, setPrice] = useState<number>(14999)
   const [users, setusers] = useState([])
 
-  useEffect(()=>{
+  useEffect(() => {
     setPrice(2000);
-    
-  },[])
+
+  }, [])
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/v1/user/get/users");
+        const response = await fetch("http://localhost:8000/api/v1/product/get-products");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -37,38 +37,45 @@ export default function Home() {
     fetchUsers();
   }, []);
 
-  
-  const handleCreateuser = async() =>{
-      
+
+  const handleCreateuser = async () => {
+
+  }
+  function getRandomString(length = 10) {
+    return Math.random().toString(36).substring(2, 2 + length);
   }
 
-  const handleCreateProduct = async() =>{
+  function getRandomPrice(min = 1000, max = 50000) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  const handleCreateProduct = async () => {
 
     const res = await createProduct({
-      name: "Mountain Bike",
-      description: "High-performance mountain cycle suitable for off-road and daily commute.",
-      price: 14999,
+      name: getRandomString(12), // random 12-character string
+      description:
+        "High-performance mountain cycle suitable for off-road and daily commute.",
+      price: getRandomPrice(),    // random price between 1000 and 50000
       image: "/cycle.webp",
       category: "Bikes"
     });
-
-    if(res.error){
+    if (res.error) {
       console.error("Error creating product:", res.error);
     } else {
       console.log("Product created successfully:", res.product);
     }
   }
 
-  const handleEsewaPayment = () =>{
+  const handleEsewaPayment = () => {
 
   }
 
-  const handleKalthiPayment = () =>{
+  const handleKalthiPayment = () => {
 
   }
-  const handleClick = (e  : any) =>{
+  const handleClick = (e: any) => {
     e.preventDefault();
-    
+
     toast.success("i love you too")
   }
   return (
@@ -78,15 +85,15 @@ export default function Home() {
           Cycle Store
         </CardHeader>
         <CardContent>
-           <div>
-        Users : 
-        {users && users.length > 0  &&  users.map((user: any) => (
-          <div key={user._id} className="p-4 bg-white shadow-md rounded-md my-2">
-            <h3 className="text-lg font-semibold">{user.name}</h3>
-            <p className="text-gray-600">{user.email}</p>
+          <div>
+            Users :
+            {users && users.length > 0 && users.map((user: any) => (
+              <div key={user._id} className="p-4 bg-white shadow-md rounded-md my-2">
+                <h3 className="text-lg font-semibold">{user.name}</h3>
+                <p className="text-gray-600">Rs {user.price}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
           <div className="flex flex-col items-center space-y-4">
             <Image
               src="/cycle.webp"
@@ -105,30 +112,29 @@ export default function Home() {
             </Button>
           </div>
           <div className="shadow-md my-2 p-4 rounded-md flex justify-between">
-              <Button className="bg-green-600 hover:bg-green-500" onClick={handleEsewaPayment}>
-                Pay with Esewa
-              </Button>
-              <Button className="bg-violet-600 hover:bg-violet-500" onClick={handleKalthiPayment}>
-                Pay with Kalthi
-              </Button>
+            <Button className="bg-green-600 hover:bg-green-500" onClick={handleEsewaPayment}>
+              Pay with Esewa
+            </Button>
+            <Button className="bg-violet-600 hover:bg-violet-500" onClick={handleKalthiPayment}>
+              Pay with Kalthi
+            </Button>
           </div>
           <div className="mt-4 space-y-2">
-           <Button onClick={handleCreateuser} className="w-full bg-blue-600 hover:bg-blue-500">
-            Create User
-           </Button>
+            <Button onClick={handleCreateuser} className="w-full bg-blue-600 hover:bg-blue-500">
+              Create User
+            </Button>
             <Button onClick={handleCreateProduct} className="w-full bg-blue-600 hover:bg-blue-500">
-            Create Product
-           </Button>
+              Create Product
+            </Button>
           </div>
         </CardContent>
       </Card>
       <div>
-     kasto xa tw ? 
-     leave i love you in the comment  hello wrodl
-    <Input placeholder="commet please" />
-    <Button onClick={handleClick}>I love you</Button>
+        kasto xa tw ?
+        <Input placeholder="commet please" />
+        <Button onClick={handleClick}>I love you</Button>
       </div>
-     
+
     </div>
   );
 }
